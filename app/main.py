@@ -27,19 +27,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class PwvType(Enum):
-    CF = "cf"
-    BA = "ba"
-    HA = "ha"
-    EST = "est"
-    AO = "ao"
-
-
 class Elastic(BaseModel):
     ps: float
     pd: float
     pwv: float
-    pwvType: PwvType
+    pwvType: str
 
 
 @app.post("/elastic")
@@ -47,10 +39,10 @@ def elastic(rqBody: Elastic):
     if rqBody.pwvType == "cf":
         result_column_name = "Stelari"
     else:
-        result_column_name = rqBody.pwvType.lower() + "Start"
+        result_column_name = rqBody.pwvType + "Start"
 
     try:
-        return { "result": result_column_name + " " + calculate(rqBody.ps, rqBody.pd, rqBody.pwv)}
+        return { "result": result_column_name + " " + str(calculate(rqBody.ps, rqBody.pd, rqBody.pwv))}
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid parameters")
 
